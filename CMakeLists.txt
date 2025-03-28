@@ -19,7 +19,8 @@ if (Boost_FOUND)
             FrontController/server.cpp
             FrontController/server.h
             FrontController/session.cpp
-            FrontController/session.h)
+            FrontController/session.h
+            FrontController/BaseHandler.h)
 
 
     target_link_libraries(ShentServer ${Boost_LIBRARIES})
