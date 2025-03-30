@@ -5,9 +5,10 @@ namespace asio = boost::asio;
 namespace beast = boost::beast;
 using tcp = asio::ip::tcp;
 
-server::server(short port, int thread_count)
+server::server(short port, int thread_count, const router& rt)
     : acceptor_(io_context_, tcp::endpoint(tcp::v4(), port)),
-    work_guard_(asio::make_work_guard(io_context_)){
+      work_guard_(make_work_guard(io_context_)),
+      router_(std::move(rt)) {
     accept_connections();
 
     for (int i = 0; i < thread_count; i++) {
@@ -22,19 +23,16 @@ server::~server() {
 }
 
 void server::run() {
-
-
     io_context_.run();
 }
+
 
 void server::accept_connections() {
     acceptor_.async_accept(
         [this](beast::error_code ec, tcp::socket socket) {
             if (!ec) {
-                std::make_shared<session>(std::move(socket))->start();
+                std::make_shared<session>(std::move(socket), router_)->start();
                 accept_connections();
-            } else {
-                std::cerr << "Error [server::accept_connections]: " << ec << std::endl;
             }
         }
     );

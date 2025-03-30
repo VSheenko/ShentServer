@@ -7,8 +7,8 @@ namespace http = beast::http;
 namespace asio = boost::asio;
 using tcp = asio::ip::tcp;
 
-session::session(boost::asio::ip::tcp::socket socket)
-    : socket_(std::move(socket)) {}
+session::session(boost::asio::ip::tcp::socket socket, const router& rt)
+    : socket_(std::move(socket)), router_(std::move(rt)) {}
 
 void session::start() { read_request(); }
 
@@ -25,25 +25,8 @@ void session::read_request() {
 
 
 void session::processes_request() {
-    http::response<http::string_body> response;
-    response.version(request_.version());
-    response.set(http::field::server, "Boost.Beast");
-    response.set(http::field::content_type, "text/plain");
+    http::response<http::string_body> response = router_.handle_request(request_);
 
-    if (request_.method() == http::verb::get) {
-        response.result(http::status::ok);
-        response.body() = "GET request received!";
-    }
-    else if (request_.method() == http::verb::post) {
-        response.result(http::status::ok);
-        response.body() = "POST data: " + (request_.body().empty() ? "No body" : request_.body());
-    }
-    else {
-        response.result(http::status::bad_request);
-        response.body() = "Unsupported HTTP method";
-    }
-
-    response.prepare_payload();
     send_response(std::move(response));
 }
 
