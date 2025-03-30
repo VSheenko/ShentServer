@@ -6,7 +6,9 @@ namespace beast = boost::beast;
 using tcp = asio::ip::tcp;
 
 server::server(short port, int thread_count, const router& rt)
-    : acceptor_(io_context_, tcp::endpoint(tcp::v4(), port)), router_(std::move(rt)) {
+    : acceptor_(io_context_, tcp::endpoint(tcp::v4(), port)),
+      work_guard_(make_work_guard(io_context_)),
+      router_(std::move(rt)) {
     accept_connections();
 
     for (int i = 0; i < thread_count; i++) {
@@ -19,6 +21,11 @@ server::~server() {
         if (worker.joinable()) worker.join();
     }
 }
+
+void server::run() {
+    io_context_.run();
+}
+
 
 void server::accept_connections() {
     acceptor_.async_accept(

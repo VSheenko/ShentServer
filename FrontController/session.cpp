@@ -17,6 +17,8 @@ void session::read_request() {
                        [self = shared_from_this()](beast::error_code ec, std::size_t) {
                              if (!ec) {
                                self->processes_request();
+                             } else {
+                                 std::cerr << "Error [server::read_request]: " << ec << std::endl;
                              }
                        });
 }
@@ -33,6 +35,10 @@ void session::send_response(http::response<http::string_body> response) {
 
     http::async_write(socket_, *shared_response,
         [self = shared_from_this(), shared_response](beast::error_code ec, std::size_t) {
+            if (ec) {
+                std::cerr << "Error [session::send_response]: " << ec << std::endl;
+            }
+
             self->close_connection();
         });
 }
