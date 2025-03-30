@@ -19,8 +19,6 @@ public:
     void run();
 private:
     void accept_connections();
-
-
 };
 
 

@@ -22,7 +22,9 @@ if (Boost_FOUND)
             UserController/user_handler.cpp
             UserController/user_handler.h
             FrontController/router/router.cpp
-            FrontController/router/router.h)
+            FrontController/router/router.h
+            local_data/config.cpp
+            local_data/config.h)
 
 
     target_link_libraries(ShentServer ${Boost_LIBRARIES})
