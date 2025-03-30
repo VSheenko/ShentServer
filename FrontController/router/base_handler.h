@@ -3,9 +3,9 @@
 
 #include <boost/beast/http.hpp>
 
-class BaseHandler {
+class base_handler {
 public:
-	virtual ~BaseHandler() = default;
+	virtual ~base_handler() = default;
 	virtual boost::beast::http::response<boost::beast::http::string_body> handle_request(
 		const boost::beast::http::request<boost::beast::http::string_body>& req) = 0;
 };

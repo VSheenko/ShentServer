@@ -2,14 +2,17 @@
 #define SERVER_H
 
 #include "session.h"
+#include "router/router.h"
 
 class server {
     boost::asio::io_context io_context_;
     boost::asio::ip::tcp::acceptor acceptor_;
     std::vector<std::thread> workers_;
 
+    router router_;
+
 public:
-    server(short port, int thread_count);
+    server(short port, int thread_count, const router &rt);
     ~server();
 
 private:

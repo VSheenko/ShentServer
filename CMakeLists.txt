@@ -10,16 +10,19 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost REQUIRED COMPONENTS)
 
 if (Boost_FOUND)
-    message(STATUS "Boost found")
+    message(STATUS "Boost found\n")
     include_directories(${Boost_INCLUDE_DIRS})
 
     add_executable(ShentServer main.cpp
-            FrontController/FrontController.cpp
-            FrontController/FrontController.h
             FrontController/server.cpp
             FrontController/server.h
             FrontController/session.cpp
-            FrontController/session.h)
+            FrontController/session.h
+            FrontController/router/base_handler.h
+            UserController/user_handler.cpp
+            UserController/user_handler.h
+            FrontController/router/router.cpp
+            FrontController/router/router.h)
 
 
     target_link_libraries(ShentServer ${Boost_LIBRARIES})
