@@ -37,7 +37,14 @@ add_executable(ShentServer main.cpp
         local_data/ShentDB.h
         local_data/model/PqSettings.cpp
         local_data/model/PqSettings.h
-        local_data/model/RedisSettings.h)
+        local_data/model/RedisSettings.h
+        local_data/dao/UserDao.cpp
+        local_data/dao/UserDao.h
+        local_data/model/User.cpp
+        local_data/model/User.h
+        local_data/repository/UserRepository.cpp
+        local_data/repository/UserRepository.h
+)
 
 
 target_link_libraries(ShentServer PRIVATE ${Boost_LIBRARIES})
