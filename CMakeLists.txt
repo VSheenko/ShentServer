@@ -33,8 +33,6 @@ add_executable(ShentServer main.cpp
         FrontController/router/router.h
         local_data/JsonConfigParser.cpp
         local_data/JsonConfigParser.h
-        local_data/ShentDB.cpp
-        local_data/ShentDB.h
         local_data/model/PqSettings.cpp
         local_data/model/PqSettings.h
         local_data/model/RedisSettings.h)
