@@ -16,6 +16,8 @@ public:
     server(short port, int thread_count, const router &rt);
     ~server();
 
+    boost::asio::io_context& getContext();
+
     void run();
 private:
     void accept_connections();

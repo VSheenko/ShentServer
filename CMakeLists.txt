@@ -44,6 +44,12 @@ add_executable(ShentServer main.cpp
         local_data/model/User.h
         local_data/repository/UserRepository.cpp
         local_data/repository/UserRepository.h
+        local_data/model/Message.cpp
+        local_data/model/Message.h
+        local_data/dao/MessageDao.cpp
+        local_data/dao/MessageDao.h
+        local_data/repository/MessageRepository.cpp
+        local_data/repository/MessageRepository.h
 )
 
 

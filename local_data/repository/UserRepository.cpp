@@ -1,7 +1,7 @@
 #include "UserRepository.h"
 
-UserRepository::UserRepository(ShentDB &db) {
-	dao_ = std::make_shared<UserDao>(db);
+UserRepository::UserRepository(std::shared_ptr<ShentDB> db) {
+	dao_ = std::make_shared<UserDao>(*db);
 }
 
 void UserRepository::async_get(int id, std::function<void(std::optional<User>)> callback) {

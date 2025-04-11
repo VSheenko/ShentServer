@@ -1,26 +1,37 @@
 #include "ShentDB.h"
-#include <iostream>
 
-ShentDB::ShentDB(boost::asio::io_context &io, const std::string &connStr)
+ShentDB::ShentDB(boost::asio::io_context &io, const std::string &connStr, size_t pool_size)
 	: io_(io),  workGuard_(boost::asio::make_work_guard(io)) {
-	connection_ = PQconnectdb(connStr.c_str());
 
-	if (PQstatus(connection_) != CONNECTION_OK)
-		throw std::runtime_error(PQerrorMessage(connection_));
+	for (size_t i = 0; i < pool_size; i++) {
+		PGconn* conn = PQconnectdb(connStr.c_str());
 
-	PQsetnonblocking(connection_, 1);
+		if (PQstatus(conn) != CONNECTION_OK)
+			throw std::runtime_error(PQerrorMessage(conn));
+
+		PQsetnonblocking(conn, 1);
+		connections_.push_back(conn);
+	}
 }
 
 ShentDB::~ShentDB() {
-	if (connection_)
-		PQfinish(connection_);
+	for (PGconn* conn : connections_) {
+		if (conn)
+			PQfinish(conn);
+	}
 }
 
 
 void ShentDB::asyncQuery(const std::string &q, Callback callback) {
-	boost::asio::post(io_, [this, q, callback]() {
-		PGresult* result = PQexec(connection_, q.c_str());
+	auto self = shared_from_this();
+
+	size_t conn_ind = current_connection_++ % connections_.size();
+
+	boost::asio::post(io_, [self, q, callback, conn_ind]() {
+		PGresult* result = PQexec(self->connections_[conn_ind], q.c_str());
 		callback(result);
 		PQclear(result);
+
 	});
 }
+

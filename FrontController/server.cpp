@@ -22,6 +22,10 @@ server::~server() {
     }
 }
 
+asio::io_context& server::getContext() {
+    return io_context_;
+}
+
 void server::run() {
     io_context_.run();
 }
