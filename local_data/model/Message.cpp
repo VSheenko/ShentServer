@@ -1,6 +1,5 @@
 #include "Message.h"
 
-
 std::optional<Message> Message::fromPGResult(PGresult *result, int row) {
 	if (!result || PQntuples(result) <= row)
 		return std::nullopt;
@@ -16,3 +15,30 @@ std::optional<Message> Message::fromPGResult(PGresult *result, int row) {
 		id, sender, recipient, chat, text, is
 	};
 }
+
+nlohmann::json Message::to_json() {
+	nlohmann::json j = {
+		{"id", id},
+		{"sender_id", sender_id},
+		{"recipient_id", recipient_id},
+		{"chat_id", chat_id},
+		{"text", text},
+		{"attachmentExists", attachmentExists},
+	};
+
+	return j;
+}
+
+std::optional<Message> Message::from_json(nlohmann::json &j) {
+	Message msg;
+
+	j.at("id").get_to(msg.id);
+	j.at("sender_id").get_to(msg.sender_id);
+	j.at("recipient_id").get_to(msg.recipient_id);
+	j.at("chat_id").get_to(msg.chat_id);
+	j.at("text").get_to(msg.text);
+	j.at("attachmentExists").get_to(msg.attachmentExists);
+
+	return msg;
+}
+

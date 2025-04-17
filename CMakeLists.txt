@@ -50,6 +50,14 @@ add_executable(ShentServer main.cpp
         local_data/dao/MessageDao.h
         local_data/repository/MessageRepository.cpp
         local_data/repository/MessageRepository.h
+        WebSocketServer/WebSocketSession.cpp
+        WebSocketServer/WebSocketSession.h
+        WebSocketServer/SessionManager.cpp
+        WebSocketServer/SessionManager.h
+        WebSocketServer/websocket_handler.cpp
+        WebSocketServer/websocket_handler.h
+        local_data/model/request_target.cpp
+        local_data/model/request_target.h
 )
 
 

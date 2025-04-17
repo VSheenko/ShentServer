@@ -25,9 +25,11 @@ void session::read_request() {
 
 
 void session::processes_request() {
-    http::response<http::string_body> response = router_.handle_request(request_);
+    std::optional<http::response<http::string_body>> response = router_.handle_request(request_, socket_);
 
-    send_response(std::move(response));
+
+    if (response.has_value())
+        send_response(std::move(response.value()));
 }
 
 void session::send_response(http::response<http::string_body> response) {

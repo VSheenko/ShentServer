@@ -15,8 +15,8 @@ public:
 	explicit router(std::vector<std::pair<std::string, handler_ptr>>& handlers);
 	void add_route(std::string path, handler_ptr handler);
 
-	boost::beast::http::response<boost::beast::http::string_body> handle_request(
-		const boost::beast::http::request<boost::beast::http::string_body>& req);
+	std::optional<boost::beast::http::response<boost::beast::http::string_body>> handle_request(
+		const boost::beast::http::request<boost::beast::http::string_body>& req, boost::asio::ip::tcp::socket& socket);
 private:
 	std::pmr::unordered_map<std::string, handler_ptr> routes_;
 };

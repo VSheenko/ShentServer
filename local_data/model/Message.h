@@ -3,6 +3,7 @@
 #include <libpq-fe.h>
 #include <optional>
 #include <string>
+#include <nlohmann/json.hpp>
 
 
 struct Message {
@@ -14,6 +15,9 @@ struct Message {
 	bool attachmentExists;
 
 	static std::optional<Message> fromPGResult(PGresult* result, int row);
+
+	nlohmann::json to_json();
+	static std::optional<Message> from_json(nlohmann::json &j);
 };
 
 

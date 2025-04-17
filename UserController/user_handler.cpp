@@ -2,7 +2,10 @@
 
 namespace http = boost::beast::http;
 
-http::response<http::string_body> user_handler::handle_request(const http::request<http::string_body> &req) {
+std::optional<http::response<http::string_body>> user_handler::handle_request(
+	const boost::beast::http::request<boost::beast::http::string_body> &req,
+	boost::asio::ip::tcp::socket &socket) {
+
 	http::response<http::string_body> res;
 	res.version(req.version());
 	res.set(http::field::server, "Shent.User");

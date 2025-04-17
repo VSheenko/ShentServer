@@ -1,10 +1,16 @@
-#ifndef USER_HANDLER_H
-#define USER_HANDLER_H
+#ifndef WEBSOCKET_HANDLER_H
+#define WEBSOCKET_HANDLER_H
 
+#include "SessionManager.h"
 #include "../FrontController/router/base_handler.h"
 
-class user_handler : public base_handler {
+
+class websocket_handler : public base_handler {
+	::std::shared_ptr<SessionManager> manager_;
+
 public:
+	websocket_handler();
+
 	std::optional<boost::beast::http::response<boost::beast::http::string_body>> handle_request(
 		const boost::beast::http::request<boost::beast::http::string_body> &req,
 		boost::asio::ip::tcp::socket &socket) override;
@@ -12,4 +18,4 @@ public:
 
 
 
-#endif //USER_HANDLER_H
+#endif //WEBSOCKET_HANDLER_H
