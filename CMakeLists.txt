@@ -78,6 +78,7 @@ target_link_libraries(ShentServer PRIVATE ${Boost_LIBRARIES})
 target_link_libraries(ShentServer PRIVATE ${jwt-cpp_LIBRARIES})
 target_link_libraries(ShentServer PRIVATE PostgreSQL::PostgreSQL)
 target_link_libraries(ShentServer PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE cryptopp)
 
 target_include_directories(ShentServer PRIVATE ${HIREDIS_HEADER})
 target_link_libraries(ShentServer PRIVATE ${HIREDIS_LIB})
