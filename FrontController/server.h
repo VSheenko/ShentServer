@@ -2,7 +2,7 @@
 #define SERVER_H
 
 #include "session.h"
-#include "router/router.h"
+#include "router/router.hpp"
 
 class server {
     boost::asio::io_context io_context_;
@@ -10,10 +10,10 @@ class server {
     std::vector<std::thread> workers_;
 
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_guard_;
-    router router_;
+    std::shared_ptr<router> router_;
 
 public:
-    server(short port, int thread_count, const router &rt);
+    server(short port, int thread_count, std::shared_ptr<router> rt);
     ~server();
 
     boost::asio::io_context& getContext();

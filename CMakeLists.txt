@@ -13,6 +13,10 @@ find_package(Boost REQUIRED COMPONENTS)
 find_package(jwt-cpp CONFIG REQUIRED)
 find_package(PostgreSQL REQUIRED)
 
+include_directories(/usr/local/include/cryptopp)
+link_directories(/usr/local/lib)
+
+
 find_path(HIREDIS_HEADER hiredis)
 find_library(HIREDIS_LIB hiredis)
 find_path(REDIS_PLUS_PLUS_HEADER sw)
@@ -58,6 +62,15 @@ add_executable(ShentServer main.cpp
         WebSocketServer/websocket_handler.h
         local_data/model/request_target.cpp
         local_data/model/request_target.h
+        AuthController/auth_handler.cpp
+        AuthController/auth_handler.h
+        AuthController/model/crypt_data.cpp
+        AuthController/model/crypt_data.h
+        Crypto/CryptoManager.cpp
+        Crypto/CryptoManager.h
+        AuthController/model/AuthRequest.cpp
+        AuthController/model/AuthRequest.h
+        local_data/model/UserAuth.hpp
 )
 
 

@@ -6,17 +6,21 @@
 
 #include "../ShentDB.h"
 #include "../model/User.h"
+#include "../model/UserAuth.hpp"
 
 class UserDao {
-	using Callback = std::function<void(std::optional<User>)>;
+	template<typename T>
+	using Callback = std::function<void(std::optional<T>)>;
 
 	ShentDB& db_;
 
 public:
 	explicit UserDao(ShentDB& db);
 
-	void getById(int id, Callback callback);
-	void getByTag(std::string tag, Callback callback);
+	void get_user(int id, Callback<User> callback);
+	void get_user(std::string login, Callback<User> callback);
+
+	void get_auth_data(int id, Callback<UserAuth> callback);
 };
 
 

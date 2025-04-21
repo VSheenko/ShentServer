@@ -7,7 +7,7 @@ namespace http = beast::http;
 namespace asio = boost::asio;
 using tcp = asio::ip::tcp;
 
-session::session(boost::asio::ip::tcp::socket socket, const router& rt)
+session::session(boost::asio::ip::tcp::socket socket, std::shared_ptr<router> rt)
     : socket_(std::move(socket)), router_(std::move(rt)) {}
 
 void session::start() { read_request(); }
@@ -25,11 +25,10 @@ void session::read_request() {
 
 
 void session::processes_request() {
-    std::optional<http::response<http::string_body>> response = router_.handle_request(request_, socket_);
-
-
-    if (response.has_value())
-        send_response(std::move(response.value()));
+    router_->async_handle_request(request_,
+        socket_, [self = shared_from_this()](http::response<http::string_body> response) {
+            self->send_response(std::move(response));
+    });
 }
 
 void session::send_response(http::response<http::string_body> response) {

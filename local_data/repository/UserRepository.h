@@ -10,7 +10,9 @@ public:
 	explicit UserRepository(std::shared_ptr<ShentDB> db);
 
 	void async_get(int id, std::function<void(std::optional<User>)> callback);
-	void async_get(std::string tag, std::function<void(std::optional<User>)> callback);
+	void async_get(std::string login, std::function<void(std::optional<User>)> callback);
+
+	void async_get_auth_data(int id, std::function<void(std::optional<UserAuth>)> callback);
 };
 
 

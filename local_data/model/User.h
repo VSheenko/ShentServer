@@ -7,7 +7,7 @@
 
 struct User {
 	int id;
-	std::string tag;
+	std::string login;
 	std::string name;
 
 	static std::optional<User> fromPGResult(PGresult* result, int row);

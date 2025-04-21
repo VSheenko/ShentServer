@@ -28,6 +28,7 @@ void WebSocketSession::run(const http::request<http::string_body>& req) {
 
 	ws_.async_accept(req, [self = shared_from_this()](beast::error_code ec) {
 		if (!ec) {
+			std::cout << "Accept OK: " << self->user_id_ << std::endl;
 			self->manager_->add(self->user_id_, self);
 			self->read();
 		}
