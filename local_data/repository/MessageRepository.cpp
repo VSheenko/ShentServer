@@ -1,6 +1,6 @@
 #include "MessageRepository.h"
 
-MessageRepository::MessageRepository(std::shared_ptr<ShentDB> db) {
+MessageRepository::MessageRepository(std::shared_ptr<PostgresClient> db) {
 	dao_ = std::make_shared<MessageDao>(*db);
 }
 

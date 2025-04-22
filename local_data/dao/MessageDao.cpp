@@ -1,7 +1,7 @@
 #include "MessageDao.h"
 #include <format>
 
-MessageDao::MessageDao(ShentDB &db) : db_(db) {}
+MessageDao::MessageDao(PostgresClient &db) : db_(db) {}
 
 
 

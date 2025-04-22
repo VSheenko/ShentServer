@@ -4,7 +4,7 @@
 #include <nlohmann/json.hpp>
 
 #include "../Crypto/CryptoManager.h"
-#include "../local_data/ShentDB.h"
+#include "../local_data/PostgresClient.h"
 #include "../local_data/model/request_target.h"
 #include "../local_data/model/User.h"
 #include "model/AuthRequest.h"
@@ -15,9 +15,8 @@
 namespace http = boost::beast::http;
 using json = nlohmann::json;
 
-auth_handler::auth_handler(std::shared_ptr<UserRepository> user_repository) {
-	user_repository_ = user_repository;
-}
+auth_handler::auth_handler(std::shared_ptr<UserRepository> user_repository, std::shared_ptr<AuthRepository> auth_repository): user_repository_(
+	std::move(user_repository)), auth_repository_(auth_repository) {}
 
 std::optional<http::response<http::string_body>> auth_handler::handle_request(
 	const http::request<http::string_body> &req, boost::asio::ip::tcp::socket &socket) {
@@ -95,7 +94,9 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 			}
 
 			int user_id = user_opt->id;
-			user_repository_->async_get_auth_data(user_id, [req_auth_opt, this, response, on_response](std::optional<UserAuth> auth_data_opt) mutable {
+			user_repository_->async_get_auth_data(user_id, [user_id, req_auth_opt,
+				this, response, on_response](std::optional<UserAuth> auth_data_opt) mutable {
+
 				if (!auth_data_opt.has_value()) {
 					set_bad_response(response, http::status::unauthorized, "Auth data not found");
 					response.prepare_payload();
@@ -117,10 +118,10 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 				success_response.set(http::field::server, "Shent.User");
 				success_response.set(http::field::content_type, "application/json");
 
-				json result = {
-					{"access_token", "encrypted_access_token"},
-					{"refresh_token", "encrypted_refresh_token"}
-				};
+				AuthTokens tokens = AuthTokens::create(user_id, ACCESS_TOKEN_TTL);
+				auth_repository_->add_refresh_token(user_id, tokens.refresh_token, REFRESH_TOKEN_TTL);
+
+				json result = tokens;
 
 				success_response.body() = result.dump();
 				success_response.prepare_payload();

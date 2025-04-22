@@ -1,37 +1,12 @@
 #include "ShentDB.h"
 
-ShentDB::ShentDB(boost::asio::io_context &io, const std::string &connStr, size_t pool_size)
-	: io_(io),  workGuard_(boost::asio::make_work_guard(io)) {
+ShentDB::ShentDB(const std::shared_ptr<PostgresClient> &pq, const std::shared_ptr<RedisClient> &redis)
+	: pq_(pq), redis_(redis) {}
 
-	for (size_t i = 0; i < pool_size; i++) {
-		PGconn* conn = PQconnectdb(connStr.c_str());
-
-		if (PQstatus(conn) != CONNECTION_OK)
-			throw std::runtime_error(PQerrorMessage(conn));
-
-		PQsetnonblocking(conn, 1);
-		connections_.push_back(conn);
-	}
+std::shared_ptr<PostgresClient> ShentDB::pq() {
+	return pq_;
 }
 
-ShentDB::~ShentDB() {
-	for (PGconn* conn : connections_) {
-		if (conn)
-			PQfinish(conn);
-	}
+std::shared_ptr<RedisClient> ShentDB::redis() {
+	return redis_;
 }
-
-
-void ShentDB::asyncQuery(const std::string &q, Callback callback) {
-	auto self = shared_from_this();
-
-	size_t conn_ind = current_connection_++ % connections_.size();
-
-	boost::asio::post(io_, [self, q, callback, conn_ind]() {
-		PGresult* result = PQexec(self->connections_[conn_ind], q.c_str());
-		callback(result);
-		PQclear(result);
-
-	});
-}
-

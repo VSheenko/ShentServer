@@ -34,11 +34,11 @@ add_executable(ShentServer main.cpp
         UserController/user_handler.cpp
         UserController/user_handler.h
         FrontController/router/router.cpp
-        FrontController/router/router.h
+        FrontController/router/router.hpp
         local_data/JsonConfigParser.cpp
         local_data/JsonConfigParser.h
-        local_data/ShentDB.cpp
-        local_data/ShentDB.h
+        local_data/PostgresClient.cpp
+        local_data/PostgresClient.h
         local_data/model/PqSettings.cpp
         local_data/model/PqSettings.h
         local_data/model/RedisSettings.h
@@ -71,6 +71,14 @@ add_executable(ShentServer main.cpp
         AuthController/model/AuthRequest.cpp
         AuthController/model/AuthRequest.h
         local_data/model/UserAuth.hpp
+        local_data/RedisClient.cpp
+        local_data/RedisClient.h
+        local_data/ShentDB.cpp
+        local_data/ShentDB.h
+        local_data/repository/AuthRepository.cpp
+        local_data/repository/AuthRepository.h
+        AuthController/model/AuthTokens.hpp
+        AuthController/model/AuthTokens.cpp
 )
 
 
@@ -79,6 +87,7 @@ target_link_libraries(ShentServer PRIVATE ${jwt-cpp_LIBRARIES})
 target_link_libraries(ShentServer PRIVATE PostgreSQL::PostgreSQL)
 target_link_libraries(ShentServer PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE cryptopp)
+target_link_libraries(ShentServer PRIVATE crypto)
 
 target_include_directories(ShentServer PRIVATE ${HIREDIS_HEADER})
 target_link_libraries(ShentServer PRIVATE ${HIREDIS_LIB})

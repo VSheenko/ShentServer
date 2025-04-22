@@ -7,7 +7,7 @@ class UserRepository {
 	std::shared_ptr<UserDao> dao_;
 
 public:
-	explicit UserRepository(std::shared_ptr<ShentDB> db);
+	explicit UserRepository(std::shared_ptr<PostgresClient> db);
 
 	void async_get(int id, std::function<void(std::optional<User>)> callback);
 	void async_get(std::string login, std::function<void(std::optional<User>)> callback);

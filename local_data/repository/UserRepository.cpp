@@ -1,6 +1,6 @@
 #include "UserRepository.h"
 
-UserRepository::UserRepository(std::shared_ptr<ShentDB> db) {
+UserRepository::UserRepository(std::shared_ptr<PostgresClient> db) {
 	dao_ = std::make_shared<UserDao>(*db);
 }
 

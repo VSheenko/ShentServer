@@ -1,6 +1,6 @@
 #include "UserDao.h"
 
-UserDao::UserDao(ShentDB &db) : db_(db) {}
+UserDao::UserDao(PostgresClient &db) : db_(db) {}
 
 void UserDao::get_auth_data(int id, Callback<UserAuth> callback) {
 	const std::string query = std::format("SELECT users.id, user_auth.password_hash, user_auth.salt\n"

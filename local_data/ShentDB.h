@@ -1,25 +1,21 @@
 #ifndef SHENTDB_H
 #define SHENTDB_H
+#include <memory>
 
-#include <libpq-fe.h>
-#include <boost/asio.hpp>
+#include "PostgresClient.h"
+#include "RedisClient.h"
 
 
-class ShentDB : public std::enable_shared_from_this<ShentDB> {
-	using Callback = std::function<void(PGresult*)>;
+class ShentDB {
+	std::shared_ptr<PostgresClient> pq_;
+	std::shared_ptr<RedisClient> redis_;
 
 public:
-	ShentDB() = delete;
-	explicit ShentDB(boost::asio::io_context& io, const std::string& connStr, size_t pool_size);
-	~ShentDB();
+	ShentDB(const std::shared_ptr<PostgresClient> &pq, const std::shared_ptr<RedisClient> &redis);
 
-	void asyncQuery(const std::string& q, std::function<void(PGresult*)> callback);
+	std::shared_ptr<PostgresClient> pq();
+	std::shared_ptr<RedisClient> redis();
 
-private:
-	std::vector<PGconn*> connections_;
-	std::atomic<size_t> current_connection_;
-	boost::asio::io_context& io_;
-	boost::asio::executor_work_guard<boost::asio::io_context::executor_type> workGuard_;
 };
 
 

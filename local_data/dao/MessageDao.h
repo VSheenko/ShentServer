@@ -4,15 +4,15 @@
 #include "../model/Message.h"
 #include <functional>
 
-#include "../ShentDB.h"
+#include "../PostgresClient.h"
 
 
 class MessageDao {
 	using Callback = std::function<void(std::optional<Message>)>;
 
-	ShentDB& db_;
+	PostgresClient& db_;
 public:
-	explicit MessageDao(ShentDB& db);
+	explicit MessageDao(PostgresClient& db);
 
 	void getById(int64_t id, Callback callback);
 };
