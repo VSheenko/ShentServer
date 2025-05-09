@@ -61,7 +61,7 @@ std::string CryptoManager::decrypt(const std::string &ciphertext) {
 }
 
 
-std::string CryptoManager::hash_password(const std::string &password, const std::string &salt64) {
+std::string CryptoManager::hash(const std::string &password, const std::string &salt64) {
 	std::string salt_decoded;
 	CryptoPP::StringSource(salt64, true,
 		new CryptoPP::Base64Decoder(

@@ -6,6 +6,7 @@
 #include "model/AuthTokens.hpp"
 #include "model/AuthRequest.h"
 #include "model/crypt_data.h"
+#include "model/RegisterRequest.h"
 
 class auth_handler : public base_handler {
 	const int REFRESH_TOKEN_TTL = 2592000;
@@ -21,7 +22,7 @@ public:
 
 	inline void async_handle_request(const request_t &req, socket_t &socket, response_handler on_response) override;
 private:
-
+	void registration(const RegisterRequest &request, response_t &response, const response_handler &on_response);
 };
 
 

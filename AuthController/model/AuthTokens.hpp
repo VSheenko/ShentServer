@@ -9,6 +9,7 @@ struct AuthTokens {
 	std::string refresh_token;
 
 	static AuthTokens create(int user_id, int ttl_sec);
+	std::string create_refresh_sheet(const std::string& device_id, const std::string& user_agent);
 private:
 	AuthTokens() = default;
 };

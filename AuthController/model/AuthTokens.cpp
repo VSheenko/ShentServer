@@ -13,6 +13,18 @@ AuthTokens AuthTokens::create(int user_id, int ttl_sec) {
 	return tokens;
 }
 
+std::string AuthTokens::create_refresh_sheet(const std::string &device_id, const std::string &user_agent) {
+	std::string salt =  CryptoManager::salt64_generate();
+	nlohmann::json j = {
+		{"refresh_token_hash", CryptoManager::hash(this->refresh_token, salt)},
+		{"device_id", CryptoManager::hash(device_id, salt)},
+		{"user_agent", user_agent},
+		{"salt", salt},
+	};
+
+	return j.dump();
+}
+
 void to_json(nlohmann::json &j, const AuthTokens &p) {
 	j = nlohmann::json{{"access_token", p.access_token}, {"refresh_token", p.refresh_token}};
 }

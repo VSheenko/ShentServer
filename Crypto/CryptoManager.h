@@ -14,7 +14,7 @@ public:
 	std::string encrypt(const std::string& plaintext);
 	std::string decrypt(const std::string& ciphertext);
 
-	static std::string hash_password(const std::string& password, const std::string& salt64);
+	static std::string hash(const std::string& password, const std::string& salt64);
 	static std::string salt64_generate(size_t length = 16);
 
 	std::string uuid_generate();

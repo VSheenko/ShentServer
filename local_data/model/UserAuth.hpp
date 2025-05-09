@@ -10,6 +10,7 @@ struct UserAuth {
 	int id;
 	std::string password_hash;
 	std::string salt;
+	std::string private_key;
 
 	static std::optional<UserAuth> fromPGResult(PGresult* result);
 };
@@ -25,6 +26,7 @@ inline std::optional<UserAuth> UserAuth::fromPGResult(PGresult *result) {
 		std::stoi(PQgetvalue(result, 0, 0)),
 		PQgetvalue(result, 0, 1),
 		PQgetvalue(result, 0, 2),
+		PQgetvalue(result, 0, 3),
 	};
 }
 

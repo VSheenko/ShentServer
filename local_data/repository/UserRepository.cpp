@@ -16,6 +16,31 @@ void UserRepository::async_get(std::string login, std::function<void(std::option
 	});
 }
 
+void UserRepository::async_create_user(const User &user, UserAuth &user_auth, std::function<void(int)> callback) {
+	if (!callback) {
+		std::cout << "Empty callback" << std::endl;
+		return;
+	}
+
+	dao_->insert_user(user, [this, callback, user_auth](std::optional<int> id_opt) mutable {
+		if (!id_opt.has_value()) {
+			callback(-1);
+			return;
+		}
+
+		user_auth.id = *id_opt;
+		dao_->insert_user_auth(user_auth, [callback, user_auth](bool res) {
+			if (!res) {
+				callback(-1);
+				return;
+			}
+
+			callback(user_auth.id);
+			return;
+		});
+	});
+}
+
 void UserRepository::async_get_auth_data(int id, std::function<void(std::optional<UserAuth>)> callback) {
 	dao_->get_auth_data(id, [callback](std::optional<UserAuth> data) {
 		callback(data);

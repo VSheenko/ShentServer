@@ -8,6 +8,7 @@ struct AuthRequest {
 	std::string pub_key;
 	std::string login;
 	std::string password;
+	std::string device_id;
 	long timestamp;
 	std::string nonce;
 

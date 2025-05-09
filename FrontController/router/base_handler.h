@@ -18,7 +18,7 @@ public:
 
 protected:
 	void set_bad_response(response_t& response,
-		boost::beast::http::status status, std::string message);
+	                      boost::beast::http::status status, std::string message, const response_handler &on_response);
 };
 
 
@@ -29,10 +29,12 @@ inline void base_handler::async_handle_request(const request_t &req, socket_t &s
 }
 
 inline void base_handler::set_bad_response(response_t &response,
-                                           const boost::beast::http::status status, std::string message) {
+                                           const boost::beast::http::status status, std::string message, const response_handler &on_response) {
 
 	response.result(status);
 	response.body() = ("{\"error\": \"" + message + "\"}");
+	response.prepare_payload();
+	on_response(std::move(response));
 }
 
 #endif //BASEHANDLER_H

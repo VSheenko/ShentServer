@@ -10,6 +10,9 @@ struct User {
 	std::string login;
 	std::string name;
 
+	User(const std::string &login, const std::string &name);
+	User(int id, const std::string &login, const std::string &name);
+
 	static std::optional<User> fromPGResult(PGresult* result, int row);
 };
 

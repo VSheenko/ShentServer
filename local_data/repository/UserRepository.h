@@ -12,6 +12,11 @@ public:
 	void async_get(int id, std::function<void(std::optional<User>)> callback);
 	void async_get(std::string login, std::function<void(std::optional<User>)> callback);
 
+	void async_create_user(const User& user, UserAuth &user_auth, std::function<void(int)> callback);
+
+	void async_get_salt(const std::string& login);
+	void async_get_salt(int id);
+
 	void async_get_auth_data(int id, std::function<void(std::optional<UserAuth>)> callback);
 };
 

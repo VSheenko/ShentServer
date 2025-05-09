@@ -21,6 +21,9 @@ public:
 	void get_user(std::string login, Callback<User> callback);
 
 	void get_auth_data(int id, Callback<UserAuth> callback);
+
+	void insert_user(const User& user, Callback<int>callback);
+	void insert_user_auth(const UserAuth& user_auth, std::function<void(bool)> callback);
 };
 
 
