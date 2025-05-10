@@ -7,6 +7,8 @@
 #include "model/AuthRequest.h"
 #include "model/crypt_data.h"
 #include "model/RegisterRequest.h"
+#include "../FrontController/model/RequestProp.h"
+
 
 class auth_handler : public base_handler {
 	const int REFRESH_TOKEN_TTL = 2592000;
@@ -22,9 +24,10 @@ public:
 
 	inline void async_handle_request(const request_t &req, socket_t &socket, response_handler on_response) override;
 private:
+	void login(const AuthRequest& auth_data, const RequestProp& req_prop, const response_handler& on_response);
 	void registration(const RegisterRequest &registration_data, response_t &response, const response_handler &on_response);
-	void get_salt(std::string login, response_handler& on_response);
 
+	void get_salt(std::string login, response_handler& on_response);
 	AuthTokens get_auth_tokens(int user_id, const std::string& device_id, const std::string& user_agent);
 
 };

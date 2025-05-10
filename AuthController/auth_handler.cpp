@@ -103,45 +103,50 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 			return;
 		}
 
-		std::string login = req_auth_opt->login;
-		user_repository_->async_get(login, [req_auth_opt, user_agent,
-			response = std::move(response), on_response, this](std::optional<User> user_opt) mutable {
+		RequestProp prop;
+		prop.version = req.version();
+		prop.user_agent = user_agent;
 
-			if (!user_opt.has_value()) {
-				set_bad_response(response, http::status::unauthorized, "User not found", on_response);
+		login(*req_auth_opt, prop, on_response);
+	}
+
+}
+
+void auth_handler::login(const AuthRequest &auth_data, const RequestProp& req_prop, const response_handler &on_response) {
+	response_t response;
+	response.version(req_prop.version);
+	response.set(http::field::server, "Shent.Auth");
+	response.set(http::field::content_type, "application/json");
+
+	user_repository_->async_get(auth_data.login, [this, response, auth_data,
+		req_prop, on_response](std::optional<User> user_opt) mutable {
+		if (!user_opt.has_value()) {
+			set_bad_response(response, http::status::unauthorized, "User not found", on_response);
+			return;
+		}
+
+		user_repository_->async_get_auth_data(user_opt->id, [this, auth_data, user_opt, req_prop,
+			response, on_response](std::optional<UserAuth> confirm_auth_data_opt) mutable {
+			if (!confirm_auth_data_opt.has_value()) {
+				set_bad_response(response, http::status::unauthorized, "Auth data not found", on_response);
 				return;
 			}
 
-			user_repository_->async_get_auth_data(user_opt->id, [req_auth_opt, user_opt, user_agent,
-				this, response, on_response](std::optional<UserAuth> auth_data_opt) mutable {
+			if (auth_data.password != confirm_auth_data_opt->password_hash) {
+				set_bad_response(response, http::status::unauthorized, "Incorrect password", on_response);
+				return;
+			}
 
-				if (!auth_data_opt.has_value()) {
-					set_bad_response(response, http::status::unauthorized, "Auth data not found", on_response);
-					return;
-				}
+			response.result(http::status::ok);;
 
-				std::string hashed = CryptoManager::hash(req_auth_opt->password, auth_data_opt->salt);
-				if (hashed != auth_data_opt->password_hash) {
-					set_bad_response(response, http::status::unauthorized, "Incorrect password", on_response);
-					return;
-				}
+			AuthTokens tokens = get_auth_tokens(user_opt->id,  auth_data.device_id, req_prop.user_agent);
+			json result = tokens;
 
-
-				response_t success_response;
-				success_response.result(http::status::ok);
-				success_response.set(http::field::server, "Shent.User");
-				success_response.set(http::field::content_type, "application/json");
-
-				AuthTokens tokens = get_auth_tokens(user_opt->id, req_auth_opt->device_id, user_agent);
-				json result = tokens;
-
-				success_response.body() = result.dump();
-				success_response.prepare_payload();
-				on_response(std::move(success_response));
-			});
-
+			response.body() = result.dump();
+			response.prepare_payload();
+			on_response(std::move(response));
 		});
-	}
+	});
 
 }
 

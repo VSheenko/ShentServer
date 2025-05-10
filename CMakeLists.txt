@@ -88,6 +88,7 @@ add_executable(ShentServer main.cpp
         AuthController/model/RegisterRequest.cpp
         AuthController/model/RegisterRequest.h
         FrontController/router/base_handler.cpp
+        FrontController/model/RequestProp.h
 )
 
 

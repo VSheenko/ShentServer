@@ -1,5 +1,6 @@
 #include "AuthRequest.h"
 #include <nlohmann/json.hpp>
+#include <iostream>
 
 using json = nlohmann::json;
 
@@ -17,7 +18,8 @@ std::optional<AuthRequest> AuthRequest::from_json(const std::string &s_json) {
 		j["nonce"].get_to(data.nonce);
 
 		return data;
-	} catch (...) {
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
 		return std::nullopt;
 	}
 }
