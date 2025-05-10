@@ -74,3 +74,19 @@ void UserDao::get_user(std::string login, Callback<User> callback) {
 		callback(User::fromPGResult(result, 0));
 	});
 }
+
+void UserDao::get_salt(std::string login, Callback<std::string> callback) {
+	const std::string query = std::format(
+			"SELECT user_auth.salt FROM user_auth\n"
+			"LEFT JOIN users ON user_auth.user_id = users.id\n"
+			"WHERE users.login = '{}';", login);
+
+	db_.asyncQuery(query, [callback](PGresult* result) {
+		if (!result || PQntuples(result) == 0) {
+			callback(std::nullopt);
+			return;
+		}
+
+		return callback(PQgetvalue(result, 0, 0));
+	});
+}

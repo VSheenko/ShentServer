@@ -9,7 +9,9 @@ set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
-find_package(Boost REQUIRED COMPONENTS)
+find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS url)
+
 find_package(jwt-cpp CONFIG REQUIRED)
 find_package(PostgreSQL REQUIRED)
 
@@ -85,10 +87,13 @@ add_executable(ShentServer main.cpp
         FrontController/router/protect_handler.cpp
         AuthController/model/RegisterRequest.cpp
         AuthController/model/RegisterRequest.h
+        FrontController/router/base_handler.cpp
 )
 
 
 target_link_libraries(ShentServer PRIVATE ${Boost_LIBRARIES})
+target_link_libraries(ShentServer PRIVATE Boost::url)
+
 target_link_libraries(ShentServer PRIVATE ${jwt-cpp_LIBRARIES})
 target_link_libraries(ShentServer PRIVATE PostgreSQL::PostgreSQL)
 target_link_libraries(ShentServer PRIVATE nlohmann_json::nlohmann_json)

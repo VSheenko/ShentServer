@@ -41,6 +41,12 @@ void UserRepository::async_create_user(const User &user, UserAuth &user_auth, st
 	});
 }
 
+void UserRepository::async_get_salt(const std::string &login, std::function<void(std::optional<std::string>)> callback) {
+	dao_->get_salt(login, [callback](std::optional<std::string> data) {
+		callback(data);
+	});
+}
+
 void UserRepository::async_get_auth_data(int id, std::function<void(std::optional<UserAuth>)> callback) {
 	dao_->get_auth_data(id, [callback](std::optional<UserAuth> data) {
 		callback(data);

@@ -20,6 +20,8 @@ public:
 	void get_user(int id, Callback<User> callback);
 	void get_user(std::string login, Callback<User> callback);
 
+	void get_salt(std::string login, Callback<std::string> callback);
+
 	void get_auth_data(int id, Callback<UserAuth> callback);
 
 	void insert_user(const User& user, Callback<int>callback);

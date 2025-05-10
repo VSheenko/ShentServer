@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <boost/url.hpp>
 
 #include "../Crypto/CryptoManager.h"
 #include "../local_data/PostgresClient.h"
@@ -26,7 +27,7 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 
 	response_t response;
 	response.version(req.version());
-	response.set(http::field::server, "Shent.User");
+	response.set(http::field::server, "Shent.Auth");
 	response.set(http::field::content_type, "application/json");
 
 
@@ -75,7 +76,17 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 
 			registration(register_request, response, on_response);
 		});
+	}
 
+	if (target.path == "/api/auth/salt" && req.method() == http::verb::get) {
+		std::unordered_map<std::string, std::string> params = get_params(req);
+
+		if (!params.contains("login")) {
+			set_bad_response(response, http::status::bad_request, "Missing required parameter: login", on_response);
+			return;
+		}
+
+		get_salt(params["login"], on_response);
 	}
 
 	if (target.path == "/api/auth/login" && req.method() == http::verb::post) {
@@ -121,12 +132,7 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 				success_response.set(http::field::server, "Shent.User");
 				success_response.set(http::field::content_type, "application/json");
 
-				AuthTokens tokens = AuthTokens::create(user_opt->id, ACCESS_TOKEN_TTL);
-				auth_repository_->add_refresh_token(
-					user_opt->id,
-					tokens.create_refresh_sheet(req_auth_opt->device_id, user_agent),
-					REFRESH_TOKEN_TTL);
-
+				AuthTokens tokens = get_auth_tokens(user_opt->id, req_auth_opt->device_id, user_agent);
 				json result = tokens;
 
 				success_response.body() = result.dump();
@@ -139,9 +145,9 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 
 }
 
-void auth_handler::registration(const RegisterRequest &request, response_t &response, const response_handler &on_response) {
-	User user (request.login, request.login);
-	UserAuth user_auth (0, request.password, request.salt, request.private_key);
+void auth_handler::registration(const RegisterRequest &registration_data, response_t &response, const response_handler &on_response) {
+	User user (registration_data.login, registration_data.login);
+	UserAuth user_auth (0, registration_data.password, registration_data.salt, registration_data.private_key);
 	user_repository_->async_create_user(user, user_auth, [this, response, on_response](int id) mutable {
 		if (id == -1) {
 			set_bad_response(response, http::status::internal_server_error,
@@ -149,12 +155,37 @@ void auth_handler::registration(const RegisterRequest &request, response_t &resp
 			return;
 		}
 
-		response.result(http::status::ok);
-		AuthTokens tokens = AuthTokens::create(id, ACCESS_TOKEN_TTL);
-		json result = tokens;
-
-		response.body() = result.dump();
+		response.result(http::status::created);
 		response.prepare_payload();
 		on_response(response);
 	});
+}
+
+void auth_handler::get_salt(std::string login, response_handler &on_response) {
+	response_t response;
+	response.set(http::field::server, "Shent.Auth");
+	response.set(http::field::content_type, "application/json");
+
+	user_repository_->async_get_salt(login, [this, response, on_response](std::optional<std::string> salt_opt) mutable {
+		if (!salt_opt.has_value()) {
+			set_bad_response(response, http::status::not_found, "Salt not found", on_response);
+			return;
+		}
+
+		response.result(http::status::ok);
+		response.body() = ("{\"salt\": \"" + *salt_opt + "\"}");
+		response.prepare_payload();
+		on_response(response);
+	});
+}
+
+
+AuthTokens auth_handler::get_auth_tokens(int user_id, const std::string &device_id, const std::string &user_agent) {
+	AuthTokens tokens = AuthTokens::create(user_id, ACCESS_TOKEN_TTL);
+	auth_repository_->add_refresh_token(
+		user_id,
+		tokens.create_refresh_sheet(device_id, user_agent),
+		REFRESH_TOKEN_TTL);
+
+	return tokens;
 }

@@ -22,7 +22,11 @@ public:
 
 	inline void async_handle_request(const request_t &req, socket_t &socket, response_handler on_response) override;
 private:
-	void registration(const RegisterRequest &request, response_t &response, const response_handler &on_response);
+	void registration(const RegisterRequest &registration_data, response_t &response, const response_handler &on_response);
+	void get_salt(std::string login, response_handler& on_response);
+
+	AuthTokens get_auth_tokens(int user_id, const std::string& device_id, const std::string& user_agent);
+
 };
 
 
