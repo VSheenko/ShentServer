@@ -12,8 +12,12 @@ int protect_handler::authorize(const request_t &req) {
 
 	if (!extract_token(req, token))
 		return -1;
-	std::cout << token << std::endl;
-	return is_token_valid(token);
+
+	int user_id = is_token_valid(token);
+	if (user_id != -1)
+		std::cout << "[protect_handler::authorize]: User id=" << user_id << " authorized" << std::endl;
+
+	return user_id;
 }
 
 int protect_handler::is_token_valid(const std::string &token) {

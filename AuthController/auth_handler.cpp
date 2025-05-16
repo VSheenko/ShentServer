@@ -36,7 +36,6 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 
 
 	if (target.path == "/api/auth/ping" && req.method() == http::verb::get) {
-		std::cout << "ping" << std::endl;
 		ping(response, on_response);
 	}
 
@@ -108,6 +107,8 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 
 // Наверно, лучше удалить нахуй этот RequestProp
 void auth_handler::login(const AuthRequest &auth_data, const RequestProp& req_prop, const response_handler &on_response) {
+	std::cout << "[auth_handler::async_handle_request REQUEST]: login (" << auth_data.login << ")" << std::endl;
+
 	response_t response;
 	response.version(req_prop.version);
 	response.set(http::field::server, "Shent.Auth");
@@ -146,6 +147,8 @@ void auth_handler::login(const AuthRequest &auth_data, const RequestProp& req_pr
 }
 
 void auth_handler::registration(const RegisterRequest &registration_data, response_t &response, const response_handler &on_response) {
+	std::cout << "[auth_handler::async_handle_request REQUEST]: register (" << registration_data.login << ")" << std::endl;
+
 	User user (registration_data.login, registration_data.login);
 
 	std::string salt = CryptoManager::salt64_generate();
@@ -174,6 +177,8 @@ void auth_handler::refresh(const request_t &request, response_t &response,
 		return;
 	}
 
+	std::cout << "[auth_handler::async_handle_request REQUEST]: refresh (user_id=" << refresh_data_opt->user_id << ")" << std::endl;
+
 	std::optional<RefreshTokenStorage> token_storage = auth_repository_->get_refresh_token_storage(
 		refresh_data_opt->user_id);
 	if (!token_storage.has_value()) {
@@ -181,10 +186,12 @@ void auth_handler::refresh(const request_t &request, response_t &response,
 		return;
 	}
 
-	if (refresh_data_opt->device_id != token_storage->device_id || token_storage->user_agent != get_ua(request)) {
+	std::string hash_device_id = CryptoManager::hash(refresh_data_opt->device_id, token_storage->salt);
+	if (hash_device_id != token_storage->device_id || token_storage->user_agent != get_ua(request)) {
 		set_bad_response(response, http::status::unknown, "Bad device_id or ua. Please log in", on_response);
 		return;
 	}
+
 
 	std::string hash_token = CryptoManager::hash(refresh_data_opt->refresh_token, token_storage->salt);
 	if (hash_token != token_storage->refresh_token_hash) {
@@ -215,26 +222,6 @@ std::string auth_handler::get_ua(request_t request) {
 
 	return user_agent;
 }
-
-void auth_handler::get_salt(std::string login, response_handler &on_response) {
-	response_t response;
-	response.set(http::field::server, "Shent.Auth");
-	response.set(http::field::content_type, "application/json");
-
-	user_repository_->async_get_salt(login, [this, response, on_response](std::optional<std::string> salt_opt) mutable {
-		if (!salt_opt.has_value()) {
-			set_bad_response(response, http::status::not_found, "Salt not found", on_response);
-			return;
-		}
-
-		response.result(http::status::ok);
-		response.body() = ("{\"salt\": \"" + *salt_opt + "\"}");
-		response.prepare_payload();
-		on_response(response);
-	});
-}
-
-
 
 AuthTokens auth_handler::get_auth_tokens(int user_id, const std::string &device_id, const std::string &user_agent) {
 	AuthTokens tokens = AuthTokens::create(user_id, ACCESS_TOKEN_TTL);

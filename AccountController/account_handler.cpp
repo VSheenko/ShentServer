@@ -19,14 +19,10 @@ void account_handler::async_handle_request(const request_t &req, socket_t &socke
 	response.set(http::field::server, "Shent.User");
 	response.set(http::field::content_type, "application/json");
 
-	std::cout << "Account enter: ";;
-
 	int user_id = authorize(req);
 	if (user_id == -1) {
 		set_bad_response(response, http::status::unauthorized, "unauthorized", on_response);
 		on_response(response);
 		return;
 	}
-
-	std::cout << "Entered: " << user_id << std::endl;
 }
