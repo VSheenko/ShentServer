@@ -10,6 +10,7 @@
 #include "../local_data/model/User.h"
 #include "model/AuthRequest.h"
 #include "model/crypt_data.h"
+#include "model/RefreshRequest.h"
 #include "model/RegisterRequest.h"
 
 
@@ -33,11 +34,11 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 
 	request_target target(req.target());
 
-	std::string user_agent;
-	if (req.count(http::field::user_agent)) {
-		user_agent = req[http::field::user_agent];
-	}
 
+	if (target.path == "/api/auth/ping" && req.method() == http::verb::get) {
+		std::cout << "ping" << std::endl;
+		ping(response, on_response);
+	}
 
 	if (target.path == "/api/auth/pk" && req.method() == http::verb::get) {
 		if (auto public_key = std::getenv("PUBLIC_KEY")) {
@@ -50,6 +51,10 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 		response.prepare_payload();
 		on_response(std::move(response));
 		return;
+	}
+
+	if (target.path == "/api/auth/refresh" && req.method() == http::verb::post) {
+		refresh(req, response, on_response);
 	}
 
 	if (target.path == "/api/auth/register" && req.method() == http::verb::post) {
@@ -78,17 +83,6 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 		});
 	}
 
-	if (target.path == "/api/auth/salt" && req.method() == http::verb::get) {
-		std::unordered_map<std::string, std::string> params = get_params(req);
-
-		if (!params.contains("login")) {
-			set_bad_response(response, http::status::bad_request, "Missing required parameter: login", on_response);
-			return;
-		}
-
-		get_salt(params["login"], on_response);
-	}
-
 	if (target.path == "/api/auth/login" && req.method() == http::verb::post) {
 		std::optional<crypt_data> obj = crypt_data::from_json(req.body());
 
@@ -105,13 +99,14 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 
 		RequestProp prop;
 		prop.version = req.version();
-		prop.user_agent = user_agent;
+		prop.user_agent = get_ua(req);
 
 		login(*req_auth_opt, prop, on_response);
 	}
 
 }
 
+// Наверно, лучше удалить нахуй этот RequestProp
 void auth_handler::login(const AuthRequest &auth_data, const RequestProp& req_prop, const response_handler &on_response) {
 	response_t response;
 	response.version(req_prop.version);
@@ -132,7 +127,8 @@ void auth_handler::login(const AuthRequest &auth_data, const RequestProp& req_pr
 				return;
 			}
 
-			if (auth_data.password != confirm_auth_data_opt->password_hash) {
+			std::string hash = CryptoManager::hash(auth_data.password, confirm_auth_data_opt->salt);
+			if (hash != confirm_auth_data_opt->password_hash) {
 				set_bad_response(response, http::status::unauthorized, "Incorrect password", on_response);
 				return;
 			}
@@ -147,12 +143,15 @@ void auth_handler::login(const AuthRequest &auth_data, const RequestProp& req_pr
 			on_response(std::move(response));
 		});
 	});
-
 }
 
 void auth_handler::registration(const RegisterRequest &registration_data, response_t &response, const response_handler &on_response) {
 	User user (registration_data.login, registration_data.login);
-	UserAuth user_auth (0, registration_data.password, registration_data.salt, registration_data.private_key);
+
+	std::string salt = CryptoManager::salt64_generate();
+	std::string hash = CryptoManager::hash(registration_data.password, salt);
+	UserAuth user_auth (0, hash, salt, registration_data.private_key);
+
 	user_repository_->async_create_user(user, user_auth, [this, response, on_response](int id) mutable {
 		if (id == -1) {
 			set_bad_response(response, http::status::internal_server_error,
@@ -164,6 +163,57 @@ void auth_handler::registration(const RegisterRequest &registration_data, respon
 		response.prepare_payload();
 		on_response(response);
 	});
+}
+
+void auth_handler::refresh(const request_t &request, response_t &response,
+	const response_handler &on_response) {
+
+	std::optional<RefreshRequest> refresh_data_opt = RefreshRequest::from_json(request.body());
+	if (!refresh_data_opt.has_value()) {
+		set_bad_response(response, http::status::bad_request, "Bad request", on_response);
+		return;
+	}
+
+	std::optional<RefreshTokenStorage> token_storage = auth_repository_->get_refresh_token_storage(
+		refresh_data_opt->user_id);
+	if (!token_storage.has_value()) {
+		set_bad_response(response, http::status::not_found, "refresh token not found", on_response);
+		return;
+	}
+
+	if (refresh_data_opt->device_id != token_storage->device_id || token_storage->user_agent != get_ua(request)) {
+		set_bad_response(response, http::status::unknown, "Bad device_id or ua. Please log in", on_response);
+		return;
+	}
+
+	std::string hash_token = CryptoManager::hash(refresh_data_opt->refresh_token, token_storage->salt);
+	if (hash_token != token_storage->refresh_token_hash) {
+		set_bad_response(response, http::status::unauthorized, "Invalid or expired token", on_response);
+		return;
+	}
+
+	AuthTokens tokens = get_auth_tokens(refresh_data_opt->user_id, refresh_data_opt->device_id, get_ua(request));
+	json j = tokens;
+
+	response.result(http::status::ok);
+	response.body() = j.dump();
+	response.prepare_payload();
+	on_response(std::move(response));
+}
+
+void auth_handler::ping(response_t &response, const response_handler &on_response) {
+	response.result(http::status::ok);
+	response.prepare_payload();
+	on_response(response);
+}
+
+std::string auth_handler::get_ua(request_t request) {
+	std::string user_agent;
+	if (request.count(http::field::user_agent)) {
+		user_agent = request[http::field::user_agent];
+	}
+
+	return user_agent;
 }
 
 void auth_handler::get_salt(std::string login, response_handler &on_response) {
@@ -183,6 +233,7 @@ void auth_handler::get_salt(std::string login, response_handler &on_response) {
 		on_response(response);
 	});
 }
+
 
 
 AuthTokens auth_handler::get_auth_tokens(int user_id, const std::string &device_id, const std::string &user_agent) {

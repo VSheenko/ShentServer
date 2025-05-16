@@ -8,7 +8,6 @@ class RegisterRequest {
 public:
 	std::string login;
 	std::string password;
-	std::string salt;
 	std::string private_key;
 	long timestamp;
 

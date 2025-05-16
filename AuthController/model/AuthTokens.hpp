@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 
 struct AuthTokens {
+	int user_id;
 	std::string access_token;
 	std::string refresh_token;
 

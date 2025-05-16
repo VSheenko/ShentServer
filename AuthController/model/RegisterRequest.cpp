@@ -11,7 +11,6 @@ std::optional<RegisterRequest> RegisterRequest::from_json(const std::string &s) 
 
 		j["login"].get_to(request.login);
 		j["password"].get_to(request.password);
-		j["salt"].get_to(request.salt);
 		j["timestamp"].get_to(request.timestamp);
 		j["private_key"].get_to(request.private_key);
 

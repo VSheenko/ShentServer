@@ -26,7 +26,10 @@ public:
 private:
 	void login(const AuthRequest& auth_data, const RequestProp& req_prop, const response_handler& on_response);
 	void registration(const RegisterRequest &registration_data, response_t &response, const response_handler &on_response);
+	void refresh(const request_t &request, response_t &response, const response_handler &on_response);
+	void ping(response_t &response, const response_handler& on_response);
 
+	std::string get_ua(request_t request);
 	void get_salt(std::string login, response_handler& on_response);
 	AuthTokens get_auth_tokens(int user_id, const std::string& device_id, const std::string& user_agent);
 
