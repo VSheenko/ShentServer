@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 	auto auth_repository = std::make_shared<AuthRepository>(shent_db->redis());
 
 	rt->add_route("/user", std::make_shared<user_handler>());
-	rt->add_route("/ws", std::make_shared<websocket_handler>());
+	rt->add_route("/ws", std::make_shared<websocket_handler>(crypto));
 	rt->add_route("/api", std::make_shared<auth_handler>(user_repository, auth_repository));
 	rt->add_route("/account", std::make_shared<account_handler>(crypto));
 

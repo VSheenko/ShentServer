@@ -3,17 +3,20 @@
 
 #include "SessionManager.h"
 #include "../FrontController/router/base_handler.h"
+#include "../FrontController/router/protect_handler.hpp"
 
 
-class websocket_handler : public base_handler {
+class websocket_handler : public base_handler, protect_handler {
 	::std::shared_ptr<SessionManager> manager_;
+	using base_handler::request_t;
+	using base_handler::response_t;
 
 public:
-	websocket_handler();
+	websocket_handler(std::shared_ptr<CryptoManager> crypto_manager);
 
-	std::optional<boost::beast::http::response<boost::beast::http::string_body>> handle_request(
-		const boost::beast::http::request<boost::beast::http::string_body> &req,
-		boost::asio::ip::tcp::socket &socket) override;
+	std::optional<response_t> handle_request(const request_t &req, socket_t &socket) override;
+
+	void async_handle_request(const request_t &req, socket_t &socket, response_handler on_response) override;
 };
 
 

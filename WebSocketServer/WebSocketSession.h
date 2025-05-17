@@ -20,7 +20,7 @@ public:
 	explicit WebSocketSession(boost::asio::ip::tcp::socket&& socket, std::shared_ptr<SessionManager>);
 	~WebSocketSession();
 
-	void run(const boost::beast::http::request<boost::beast::http::string_body>& req);
+	void run(const boost::beast::http::request<boost::beast::http::string_body>& req, int user_id);
 	void send(Message& msg);
 
 

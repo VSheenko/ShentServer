@@ -8,7 +8,7 @@ AuthTokens AuthTokens::create(int user_id, int ttl_sec) {
 	AuthTokens tokens;
 
 	tokens.user_id = user_id;
-	tokens.access_token = manager.jwt_generate("access", "auth", user_id, ttl_sec);
+	tokens.access_token = manager.jwt_generate("access", "ShentServer", user_id, ttl_sec);
 	tokens.refresh_token = manager.uuid_generate();
 
 	return tokens;

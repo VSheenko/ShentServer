@@ -14,7 +14,7 @@ private:
 
 
 public:
-	explicit protect_handler(std::shared_ptr<CryptoManager> crypto_manager, const std::string& issuer);
+	explicit protect_handler(std::shared_ptr<CryptoManager> crypto_manager);
 
 	int authorize (const request_t& req);
 

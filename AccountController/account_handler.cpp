@@ -4,7 +4,7 @@
 namespace http = boost::beast::http;
 
 account_handler::account_handler(const std::shared_ptr<CryptoManager> &crypto_manager)
-	: protect_handler(crypto_manager, "auth") {
+	: protect_handler(crypto_manager) {
 
 }
 

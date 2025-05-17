@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-protect_handler::protect_handler(std::shared_ptr<CryptoManager> crypto_manager, const std::string& issuer) {
+protect_handler::protect_handler(std::shared_ptr<CryptoManager> crypto_manager) {
 	crypto_manager_ = crypto_manager;
-	issuer_ = issuer;
+	issuer_ = "ShentServer";
 }
 
 int protect_handler::authorize(const request_t &req) {

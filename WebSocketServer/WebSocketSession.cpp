@@ -18,17 +18,13 @@ WebSocketSession::~WebSocketSession() {
 	manager_->remove(user_id_);
 }
 
-void WebSocketSession::run(const http::request<http::string_body>& req) {
+void WebSocketSession::run(const http::request<http::string_body>& req, int user_id) {
 	request_target target(req.target());
-
-	if (!target.params.contains("user_id"))
-		throw std::runtime_error("Not found user_id param");
-
-	user_id_ = std::stoi(target.params["user_id"]);
+	user_id_ = user_id;
 
 	ws_.async_accept(req, [self = shared_from_this()](beast::error_code ec) {
 		if (!ec) {
-			std::cout << "Accept OK: " << self->user_id_ << std::endl;
+			std::cout << "[WebSocketSession::run]: user_id=" << self->user_id_ << " accepted" << std::endl;
 			self->manager_->add(self->user_id_, self);
 			self->read();
 		}
