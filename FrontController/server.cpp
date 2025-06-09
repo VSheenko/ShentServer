@@ -5,7 +5,7 @@ namespace asio = boost::asio;
 namespace beast = boost::beast;
 using tcp = asio::ip::tcp;
 
-server::server(short port, int thread_count, const router& rt)
+server::server(short port, int thread_count, std::shared_ptr<router> rt)
     : acceptor_(io_context_, tcp::endpoint(tcp::v4(), port)),
       work_guard_(make_work_guard(io_context_)),
       router_(std::move(rt)) {
@@ -20,6 +20,10 @@ server::~server() {
     for (auto& worker : workers_) {
         if (worker.joinable()) worker.join();
     }
+}
+
+asio::io_context& server::getContext() {
+    return io_context_;
 }
 
 void server::run() {

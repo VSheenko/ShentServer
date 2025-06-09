@@ -29,6 +29,7 @@ PqSettings JsonConfigParser::ParsePqSettings(const nlohmann::json &j) {
 	settings.dbname = j.at("dbname").get<std::string>();
 	settings.hostaddr = j.at("hostaddr").get<std::string>();
 	settings.password = j.at("password").get<std::string>();
+	settings.user = j.at("user").get<std::string>();
 	settings.port = j.at("port").get<int>();
 
 	return settings;

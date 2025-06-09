@@ -5,7 +5,7 @@
 #include <boost/beast.hpp>
 #include <memory>
 
-#include "router/router.h"
+#include "router/router.hpp"
 
 class session : public std::enable_shared_from_this<session> {
 private:
@@ -13,9 +13,9 @@ private:
     boost::beast::flat_buffer buffer_;
     boost::beast::http::request<boost::beast::http::string_body> request_;
 
-    router router_;
+    std::shared_ptr<router> router_;
 public:
-    explicit session(boost::asio::ip::tcp::socket socket, const router& rt);
+    explicit session(boost::asio::ip::tcp::socket socket, std::shared_ptr<router> rt);
     void start();
     virtual ~session() = default;
 
