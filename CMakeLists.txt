@@ -93,6 +93,8 @@ add_executable(ShentServer main.cpp
         local_data/model/RefreshTokenStorage.h
         AuthController/model/RefreshRequest.cpp
         AuthController/model/RefreshRequest.h
+        MessageController/message_handler.cpp
+        MessageController/message_handler.h
 )
 
 

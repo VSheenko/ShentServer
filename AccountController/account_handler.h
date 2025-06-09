@@ -5,13 +5,18 @@
 #include "../FrontController/router/protect_handler.hpp"
 #include <optional>
 
+#include "../local_data/repository/UserRepository.h"
+
 
 class account_handler : public base_handler, protect_handler {
 	using base_handler::request_t;
 	using base_handler::response_t;
 
+	std::shared_ptr<UserRepository> user_repository_;
+
 public:
-	explicit account_handler(const std::shared_ptr<CryptoManager> &crypto_manager);
+	account_handler(const std::shared_ptr<CryptoManager> &crypto_manager,
+		const std::shared_ptr<UserRepository>& user_repository);
 
 	std::optional<response_t> handle_request(const request_t &req, socket_t &socket) override;
 

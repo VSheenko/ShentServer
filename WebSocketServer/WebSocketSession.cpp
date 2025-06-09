@@ -75,5 +75,15 @@ void WebSocketSession::handle_incoming(const std::string &json_str) {
 	if (msg == std::nullopt)
 		throw std::runtime_error("Error Message parse");
 
+	if (msg->recipient_id == 0) {
+		int id = msg->sender_id;
+		msg->sender_id = msg->recipient_id;
+		msg->recipient_id = msg->id;
+		msg->timestamp += 1;
+
+		send(*msg);
+		return;
+	}
+
 	manager_->get(msg.value().recipient_id)->send(msg.value());
 }

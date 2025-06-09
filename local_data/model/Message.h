@@ -11,7 +11,8 @@ struct Message {
 	int sender_id;
 	int recipient_id;
 	int64_t chat_id;
-	std::string text;
+	std::string content;
+	long timestamp;
 	bool attachmentExists;
 
 	static std::optional<Message> fromPGResult(PGresult* result, int row);

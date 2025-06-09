@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 	rt->add_route("/user", std::make_shared<user_handler>());
 	rt->add_route("/ws", std::make_shared<websocket_handler>(crypto));
 	rt->add_route("/api", std::make_shared<auth_handler>(user_repository, auth_repository));
-	rt->add_route("/account", std::make_shared<account_handler>(crypto));
+	rt->add_route("/account", std::make_shared<account_handler>(crypto, user_repository));
 
 
 	MessageRepository message_repository(shent_db->pq());
