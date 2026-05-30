@@ -1,0 +1,13 @@
+{
+  "redis": {
+    "host": "",
+    "port": 0
+  },
+  "postgres": {
+    "dbname": "",
+    "user": "",
+    "password": "",
+    "hostaddr": "",
+    "port": 0
+  }
+}
