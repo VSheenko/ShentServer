@@ -17,7 +17,6 @@ std::optional<Message> Message::fromPGResult(PGresult *result, int row) {
 	};
 }
 
-// TODO: Нормальную структуру сообщений
 nlohmann::json Message::to_json() {
 	nlohmann::json j = {
 		{"id", id},
@@ -32,7 +31,6 @@ nlohmann::json Message::to_json() {
 	return j;
 }
 
-// TODO: Нормальную структуру сообщений
 std::optional<Message> Message::from_json(nlohmann::json &j) {
 	Message msg;
 

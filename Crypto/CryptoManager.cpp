@@ -21,7 +21,8 @@ CryptoManager::~CryptoManager() {
 
 }
 
-std::string CryptoManager::encrypt(const std::string &plaintext) {
+std::string CryptoManager::encrypt(const std::string &plaintext)
+{
 	std::string encrypted;
 
 	CryptoPP::AutoSeededRandomPool rng;
@@ -35,7 +36,8 @@ std::string CryptoManager::encrypt(const std::string &plaintext) {
 	return encrypted;
 }
 
-std::string CryptoManager::decrypt(const std::string &ciphertext) {
+std::string CryptoManager::decrypt(const std::string &ciphertext)
+{
 	try {
 		std::string decoded;
 		CryptoPP::StringSource(ciphertext, true,

@@ -12,12 +12,13 @@
 #include "local_data/repository/UserRepository.h"
 #include "WebSocketServer/websocket_handler.h"
 
+static const std::string CONFIG_PATH = "./config.json"
 
 int main(int argc, char* argv[]) {
 	auto rt = std::make_shared<router>();
 	server shentserver(std::stoi(argv[1]), std::thread::hardware_concurrency(), rt);
-	auto pq = std::make_shared<PostgresClient>(shentserver.getContext(), JsonConfigParser::LoadFromFile("./config.json")->pqSettings.getConnString(), 10);
-	auto redis = std::make_shared<RedisClient>(JsonConfigParser::LoadFromFile("./config.json")->redisSettings, 5);
+	auto pq = std::make_shared<PostgresClient>(shentserver.getContext(), JsonConfigParser::LoadFromFile(CONFIG_PATH)->pqSettings.getConnString(), 10);
+	auto redis = std::make_shared<RedisClient>(JsonConfigParser::LoadFromFile(CONFIG_PATH)->redisSettings, 5);
 	auto shent_db = std::make_shared<ShentDB>(pq, redis);
 	auto crypto = std::make_shared<CryptoManager>();
 

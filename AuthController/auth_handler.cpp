@@ -82,7 +82,8 @@ void auth_handler::async_handle_request(const request_t &req, socket_t &socket, 
 		});
 	}
 
-	if (target.path == "/api/auth/login" && req.method() == http::verb::post) {
+	if (target.path == "/api/auth/login" && req.method() == http::verb::post)
+	{
 		std::optional<crypt_data> obj = crypt_data::from_json(req.body());
 
 		if (!obj.has_value()) {

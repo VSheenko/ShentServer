@@ -15,7 +15,8 @@ std::optional<base_handler::response_t> account_handler::handle_request(const re
 	return response;
 }
 
-void account_handler::async_handle_request(const request_t &req, socket_t &socket, response_handler on_response) {
+void account_handler::async_handle_request(const request_t &req, socket_t &socket, response_handler on_response)
+{
 	response_t response;
 	response.version(req.version());
 	response.set(http::field::server, "Shent.User");
